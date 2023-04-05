@@ -1,6 +1,6 @@
 from peewee import *
 
-db = SqliteDatabase('db/database.db')
+db = SqliteDatabase("database/db/database.db")
 
 class User(Model):
     id=PrimaryKeyField(unique=True)
@@ -13,3 +13,4 @@ class User(Model):
         database = db
         order_by = 'id'
         db_table='Users'
+

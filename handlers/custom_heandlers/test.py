@@ -1,10 +1,11 @@
 
 from telebot.types import Message
-from database import orm
+import database
 from loader import bot
 
 
 @bot.message_handler(commands=['test'])
 def bot_test(message: Message):
-    orm.record(message)
+    id=int(message.chat.id)
+    database.record(message.text,id)
     bot.send_message(message.chat.id, "Сделал запись в таблицу данных.")
