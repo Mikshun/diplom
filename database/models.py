@@ -2,15 +2,16 @@ from peewee import *
 
 db = SqliteDatabase("database/db/database.db")
 
+
 class User(Model):
-    id=PrimaryKeyField(unique=True)
-    user_id=IntegerField()
+    id = PrimaryKeyField(unique=True)
+    user_id = IntegerField()
+    command = CharField()
     request_date = DateField()
-    request_time=TimeField()
-    result=TextField()
+    request_time = TimeField()
+    result = TextField()
 
     class Meta:
         database = db
         order_by = 'id'
-        db_table='Users'
-
+        db_table = 'Users'

@@ -1,5 +1,6 @@
 import datetime
 from database import models
+import json
 
 
 def create_table():
@@ -7,7 +8,12 @@ def create_table():
         models.db.create_tables([models.User])
 
 
-def record(message, id):
+def record(response: tuple, message_text: str,message_chat_id: int) -> None:
     with models.db:
-        models.User.create(user_id=id, request_date=datetime.datetime.now(),
-                           request_time=datetime.datetime.now().replace(microsecond=0), result=message)
+        if len(models.User.select().where(models.User.user_id == message_chat_id)) == 5:
+            users_list = models.User.select().where(models.User.user_id == message_chat_id).order_by(models.User.id)
+            user_first_record = models.User.get(models.User.id == users_list[0])
+            user_first_record.delete_instance()
+
+        models.User.create(user_id=message_chat_id, command=message_text, request_date=datetime.datetime.now(),
+                           request_time=datetime.datetime.now().replace(microsecond=0), result=json.dumps(response))
