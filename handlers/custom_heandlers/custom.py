@@ -76,7 +76,7 @@ def bot_max_rate(message: Message):
             response = tuple([x for x in response if x["priceRange"] != 0])
             bot.send_message(message.chat.id, "Готово")
 
-            database.record(response, message.text, message.chat.id)
+            database.record(response, '/custom', message.chat.id)
             sender.bot_quest(message, response, int(data["pageSize"]))
         else:
             bot.send_message(message.from_user.id, "Не было найдено подходящих ресторанов")
