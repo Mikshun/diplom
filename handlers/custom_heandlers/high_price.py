@@ -32,6 +32,6 @@ def bot_low_price(message: Message):
         bot.send_message(message.chat.id, "Готово")
 
         database.record(response, message.text, message.chat.id)
-        sender.bot_quest(message, response)
+        sender.bot_quest(message, response, 10)
     else:
         bot.send_message(message.from_user.id, "Не было найдено подходящих ресторанов")

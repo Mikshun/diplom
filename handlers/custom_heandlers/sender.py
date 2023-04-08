@@ -26,10 +26,11 @@ def text_example(rest_info: dict) -> str:
     return bot_message
 
 
-def bot_quest(message: Message, response: tuple) -> None:
+def bot_quest(message: Message, response: tuple, page_size: int) -> None:
     bot.set_state(message.from_user.id, UserInfoState.need_photo)
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
         data['response'] = response
+        data['page_size'] = page_size
     bot.send_message(message.from_user.id, "Вам нужны фото да/нет?", reply_markup=yas_no_button())
 
 
@@ -37,17 +38,17 @@ def bot_quest(message: Message, response: tuple) -> None:
 def bot_sender(message: Message) -> None:
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
         if message.text.lower() == "да":
-            for i in data.get('response'):
-                if type(i.get("mainPhoto")) == dict and len(i.get("mainPhoto")) > 0:
-                    for photo in i["mainPhoto"]:
+            for i in range(data.get('page_size', 0)):
+                if type(data['response'][i].get("mainPhoto")) == dict and len(data['response'][i].get("mainPhoto")) > 0:
+                    for photo in data['response'][i]["mainPhoto"]:
                         try:
-                            bot.send_photo(message.from_user.id, i["mainPhoto"][photo], caption=text_example(i))
+                            bot.send_photo(message.from_user.id, data['response'][i]["mainPhoto"][photo], caption=text_example(data['response'][i]))
                             break
                         except:
                             bot.send_message(message.from_user.id, "Не удалось загрузить фото, загружаю другое")
         elif message.text.lower() == "нет":
-            for i in data['response']:
-                bot.send_message(message.from_user.id, text_example(i))
+            for i in range(data.get('page_size', 0)):
+                bot.send_message(message.from_user.id, text_example(data['response'][i]))
         else:
             bot.send_message(message.from_user.id, "Неверный ответ")
     bot.set_state(message.from_user.id, state=None)

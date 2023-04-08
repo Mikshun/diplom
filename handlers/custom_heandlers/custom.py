@@ -77,7 +77,7 @@ def bot_max_rate(message: Message):
             bot.send_message(message.chat.id, "Готово")
 
             database.record(response, message.text, message.chat.id)
-            sender.bot_quest(message, response)
+            sender.bot_quest(message, response, int(data["pageSize"]))
         else:
             bot.send_message(message.from_user.id, "Не было найдено подходящих ресторанов")
     else:
