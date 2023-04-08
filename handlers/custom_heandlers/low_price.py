@@ -21,7 +21,7 @@ def bot_low_price(message: Message):
     }
 
     response = json.loads(requests.request("GET", url, headers=headers, params=querystring).text)
-    if len(response.get("data")) > 0 and type(response.get("data")) == list:
+    if len(response.get("data", [])) > 0 and type(response.get("data", 0)) == list:
         response = sorted(response["data"],
                           key=lambda x: (
                           x.get("priceRange", 0), -x.get("aggregateRatings", 0).get("thefork", 0).get("ratingValue", 0),
