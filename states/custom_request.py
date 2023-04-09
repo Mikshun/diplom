@@ -6,3 +6,4 @@ class UserInfoState(StatesGroup):
     min_price = State()
     max_price = State()
     pageSize = State()
+    next_custom = State()

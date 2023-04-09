@@ -10,7 +10,9 @@ from states.need_result import UserInfoState
 
 def standart_text(users_list: peewee.Model) -> str:
     basic_text = "Используемая команда: {command}\n" \
+                 "Город поиска: {city}\n" \
                  "Дата и время команды: {date} {time}\n".format(command=users_list.command,
+                                                                city=users_list.city,
                                                                 date=users_list.request_date,
                                                                 time=users_list.request_time)
     return basic_text

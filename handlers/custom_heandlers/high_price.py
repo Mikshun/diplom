@@ -5,15 +5,24 @@ from loader import bot
 from . import sender
 import requests
 import json
-
+from . import city_search
+from states.high_price import UserInfoState
 
 
 @bot.message_handler(commands=['high_price'])
 def bot_low_price(message: Message):
+    city_search.bot_info_city(message)
+    bot.set_state(message.from_user.id, UserInfoState.next_high)
+
+
+@bot.message_handler(state=UserInfoState.next_high)
+def bot_next_high_price(message: Message):
     bot.send_message(message.chat.id, "Собираю данные")
+    city_search.bot_city(message)
     url = "https://the-fork-the-spoon.p.rapidapi.com/restaurants/v2/list"
 
-    querystring = {"queryPlaceValueCityId": "348156", "filterRateStart": "9", "pageSize": "10", "pageNumber": "1",
+    querystring = {"queryPlaceValueCityId": bot.retrieve_data(message.from_user.id, message.chat.id)["id_city"],
+                   "filterRateStart": "9", "pageSize": "10", "pageNumber": "1",
                    "sort": "price"}
 
     headers = {
@@ -22,6 +31,7 @@ def bot_low_price(message: Message):
     }
 
     response = json.loads(requests.request("GET", url, headers=headers, params=querystring).text)
+    city = response.get("meta").get("city").get("name")
     if len(response.get("data", [])) > 0 and type(response.get("data", 0)) == list:
         response = sorted(response["data"],
                           key=lambda x: (
@@ -31,7 +41,7 @@ def bot_low_price(message: Message):
         response = tuple([x for x in response if x["priceRange"] != 0])
         bot.send_message(message.chat.id, "Готово")
 
-        database.record(response, message.text, message.chat.id)
+        database.record(response, "/high_price", message.chat.id, city)
         sender.bot_quest(message, response, 10)
     else:
         bot.send_message(message.from_user.id, "Не было найдено подходящих ресторанов")

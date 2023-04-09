@@ -6,10 +6,19 @@ from . import sender
 import requests
 import json
 from states.custom_request import UserInfoState
+from . import city_search
 
 
 @bot.message_handler(commands=['custom'])
 def bot_custom(message: Message):
+    city_search.bot_info_city(message)
+    bot.set_state(message.from_user.id, UserInfoState.next_custom)
+
+
+@bot.message_handler(state=UserInfoState.next_custom)
+def bot_custom(message: Message):
+    bot.send_message(message.from_user.id, "Подгружаю данные")
+    city_search.bot_city(message)
     bot.send_message(message.from_user.id, "Введи пожалуйста в виде числа минимальную цену в евро")
     bot.set_state(message.from_user.id, UserInfoState.min_price)
 
@@ -58,7 +67,7 @@ def bot_max_rate(message: Message):
 
         url = "https://the-fork-the-spoon.p.rapidapi.com/restaurants/v2/list"
 
-        querystring = {"queryPlaceValueCityId": "348156", "filterRateStart": data["min_rate"],
+        querystring = {"queryPlaceValueCityId": data["id_city"], "filterRateStart": data["min_rate"],
                        "filterPriceEnd": data["max_price"], "filterPriceStart": data["min_price"],
                        "pageSize": data["pageSize"], "pageNumber": "1"}
 
@@ -68,6 +77,7 @@ def bot_max_rate(message: Message):
         }
 
         response = json.loads(requests.request("GET", url, headers=headers, params=querystring).text)
+        city = response.get("meta").get("city").get("name")
         if len(response.get("data", [])) > 0 and type(response.get("data", 0)) == list:
             response = sorted(response["data"],
                               key=lambda x: (x.get("priceRange", 0),
@@ -76,7 +86,7 @@ def bot_max_rate(message: Message):
             response = tuple([x for x in response if x["priceRange"] != 0])
             bot.send_message(message.chat.id, "Готово")
 
-            database.record(response, '/custom', message.chat.id)
+            database.record(response, '/custom', message.chat.id, city)
             sender.bot_quest(message, response, int(data["pageSize"]))
         else:
             bot.send_message(message.from_user.id, "Не было найдено подходящих ресторанов")

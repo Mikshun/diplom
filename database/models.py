@@ -7,6 +7,7 @@ class User(Model):
     id = PrimaryKeyField(unique=True)
     user_id = IntegerField()
     command = CharField()
+    city = CharField()
     request_date = DateField()
     request_time = TimeField()
     result = TextField()

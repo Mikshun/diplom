@@ -4,10 +4,11 @@ from keyboards.reply.yas_no import yas_no_button
 from loader import bot
 from states.need_photo import UserInfoState
 
-no_info = "Нет данных"
+
 
 
 def text_example(rest_info: dict) -> str:
+    no_info = "Нет данных"
     bot_message = "Название ресторана: {name_value}\n" \
                   "Улица: {street}\n" \
                   "Ценовой диапозон: {pricerange} евро\n" \
