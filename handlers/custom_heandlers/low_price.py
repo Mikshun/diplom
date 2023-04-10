@@ -12,7 +12,7 @@ from states.low_price import UserInfoState
 @bot.message_handler(commands=['low_price'])
 def bot_low_price(message: Message):
     city_search.bot_info_city(message)
-    bot.send_message(message.from_user.id, UserInfoState.next_low)
+    bot.set_state(message.from_user.id, UserInfoState.next_low)
 
 
 @bot.message_handler(state=UserInfoState.next_low)
