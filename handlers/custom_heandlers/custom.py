@@ -65,30 +65,31 @@ def bot_max_rate(message: Message):
             data["pageSize"] = message.text
         bot.send_message(message.chat.id, "Собираю данные")
 
-        url = "https://the-fork-the-spoon.p.rapidapi.com/restaurants/v2/list"
+        if data["id_city"] is not None:
+            url = "https://the-fork-the-spoon.p.rapidapi.com/restaurants/v2/list"
 
-        querystring = {"queryPlaceValueCityId": data["id_city"], "filterRateStart": data["min_rate"],
-                       "filterPriceEnd": data["max_price"], "filterPriceStart": data["min_price"],
-                       "pageSize": data["pageSize"], "pageNumber": "1"}
+            querystring = {"queryPlaceValueCityId": data["id_city"], "filterRateStart": data["min_rate"],
+                           "filterPriceEnd": data["max_price"], "filterPriceStart": data["min_price"],
+                           "pageSize": data["pageSize"], "pageNumber": "1"}
 
-        headers = {
-            "X-RapidAPI-Key": os.getenv("RAPID_API_KEY"),
-            "X-RapidAPI-Host": "the-fork-the-spoon.p.rapidapi.com"
-        }
+            headers = {
+                "X-RapidAPI-Key": os.getenv("RAPID_API_KEY"),
+                "X-RapidAPI-Host": "the-fork-the-spoon.p.rapidapi.com"
+            }
 
-        response = json.loads(requests.request("GET", url, headers=headers, params=querystring).text)
-        city = response.get("meta").get("city").get("name")
-        if len(response.get("data", [])) > 0 and type(response.get("data", 0)) == list:
-            response = sorted(response["data"],
-                              key=lambda x: (x.get("priceRange", 0),
-                                             -x.get("aggregateRatings", 0).get("thefork", 0).get("ratingValue", 0),
-                                             -x.get("aggregateRatings", 0).get("thefork", 0).get("reviewCount", 0)))
-            response = tuple([x for x in response if x["priceRange"] != 0])
-            bot.send_message(message.chat.id, "Готово")
+            response = json.loads(requests.request("GET", url, headers=headers, params=querystring).text)
+            city = response.get("meta").get("city").get("name")
+            if len(response.get("data", [])) > 0 and type(response.get("data", 0)) == list:
+                response = sorted(response["data"],
+                                  key=lambda x: (x.get("priceRange", 0),
+                                                 -x.get("aggregateRatings", 0).get("thefork", 0).get("ratingValue", 0),
+                                                 -x.get("aggregateRatings", 0).get("thefork", 0).get("reviewCount", 0)))
+                response = tuple([x for x in response if x["priceRange"] != 0])
+                bot.send_message(message.chat.id, "Готово")
 
-            database.record(response, '/custom', message.chat.id, city)
-            sender.bot_quest(message, response, int(data["pageSize"]))
-        else:
-            bot.send_message(message.from_user.id, "Не было найдено подходящих ресторанов")
+                database.record(response, '/custom', message.chat.id, city)
+                sender.bot_quest(message, response, int(data["pageSize"]))
+            else:
+                bot.send_message(message.from_user.id, "Не было найдено подходящих ресторанов")
     else:
         bot.reply_to(message.from_user.id, "Вы ввели не целое число или цифра была больше 10")

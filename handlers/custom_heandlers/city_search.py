@@ -44,12 +44,18 @@ def bot_city(message: Message) -> None:
                 else:
                     bot.send_message(message.from_user.id, "По данному городу к сожалению нет информации")
                     bot.set_state(message.from_user.id, state=None)
+                    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+                        data['id_city'] = None
             else:
                 bot.send_message(message.from_user.id, "По данному городу к сожалению нет информации")
                 bot.set_state(message.from_user.id, state=None)
+                with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+                    data['id_city'] = None
         else:
             bot.send_message(message.from_user.id, "По данному городу к сожалению нет информации")
             bot.set_state(message.from_user.id, state=None)
+            with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+                data['id_city'] = None
     else:
         bot.send_message(message.from_user.id,
                          "В сообщении есть недопустимые буквы/символы попробуйте снова, пожалуйста.")
