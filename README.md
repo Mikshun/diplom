@@ -18,7 +18,7 @@
 
 ![example4](https://github.com/Mikshun/telebot_restaurants/blob/master/example_images/img_3.png)
 
-## Установка и Запус
+## Установка и Запуск
 + Скачать репозиторий можно при помощи команды:
   ```bash 
   git clone https://github.com/Mikshun/telebot_restaurants
